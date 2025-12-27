@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Independence Day Quiz</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(-45deg, #ff9933, white, #138808, white);
+    background-size: 400% 400%;
+    animation: gradientBG 10s ease infinite;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+  }
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  #main-heading {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.2);
+    padding: 10px 20px;
+    border-radius: 10px;
+  }
+  #quiz-container {
+    background: rgba(255, 255, 255, 0.85);
+    padding: 20px 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    text-align: center;
+    margin-top: 20px;
+  }
+  h2 {
+    margin-bottom: 15px;
+  }
+  .option {
+    display: block;
+    background: #f4f4f4;
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: 0.3s;
+  }
+  .option:hover {
+    border-color: #138808;
+    background: #e8f5e9;
+  }
+  .nav-buttons {
+    margin-top: 15px;
+  }
+  .nav-buttons button {
+    background: #138808;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    margin: 5px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .nav-buttons button:hover {
+    background: #0e6b06;
+  }
+  #result-popup {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .popup-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+  }
+  .popup-content button {
+    background: #ff9933;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .popup-content button:hover {
+    background: #e67e00;
+  }
+  /* Tricolor animation for Jai Bharat text */
+  .jai-bharat {
+    font-size: 24px;
+    font-weight: bold;
+    animation: tricolor 2s infinite linear;
+  }
+  @keyframes tricolor {
+    0% { color: #ff9933; }
+    33% { color: white; }
+    66% { color: #138808; }
+    100% { color: #ff9933; }
+  }
+</style>
+</head>
+<body>
+
+<h1 id="main-heading"> 79th Independence Day Special Quiz by AIML </h1>
+
+<div id="quiz-container">
+  <h2 id="question"></h2>
+  <div id="options"></div>
+
+  <div class="nav-buttons">
+    <button id="prevBtn" disabled>Previous</button>
+    <button id="nextBtn">Next</button>
+    <button id="submitBtn" style="display:none;">Submit</button>
+  </div>
+</div>
+
+<div id="result-popup" style="display:none;">
+  <div class="popup-content">
+    <h1 class="jai-bharat" id="result-text"></h1>
+    <button onclick="location.reload()">Restart</button>
+  </div>
+</div>
+
+<script>
+const quizData = [
+  { question: "What is the date of India's Independence Day?", options: ["July 4th", "August 15th", "September 2nd", "October 26th"], answer: 1 },
+  { question: "Who was the first Prime Minister of India?", options: ["Sardar Patel", "Jawaharlal Nehru", "Mahatma Gandhi", "Subhas Chandra Bose"], answer: 1 },
+  { question: "In which year did India gain independence?", options: ["1945", "1947", "1950", "1962"], answer: 1 },
+  { question: "Who is known as the 'Father of the Nation' in India?", options: ["Jawaharlal Nehru", "Sardar Patel", "Mahatma Gandhi", "Bhagat Singh"], answer: 2 },
+  { question: "What is the name of the Indian National Anthem?", options: ["Vande Mataram", "Jana Gana Mana", "Sare Jahan Se Accha", "Hum Honge Kamyaab"], answer: 1 },
+  { question: "Who designed the Indian national flag?", options: ["Rabindranath Tagore", "Mahatma Gandhi", "Pingali Venkayya", "Sarojini Naidu"], answer: 2 },
+  { question: "Which movement did Mahatma Gandhi launch in 1942?", options: ["Non-Cooperation Movement", "Quit India Movement", "Civil Disobedience Movement", "Swadeshi Movement"], answer: 1 },
+  { question: "Who was the last British Viceroy of India?", options: ["Lord Mountbatten", "Lord Curzon", "Lord Wavell", "Lord Irwin"], answer: 0 },
+  { question: "What is the name of the march led by Mahatma Gandhi to protest the British salt tax?", options: ["Salt Satyagraha", "Bardoli Satyagraha", "Champaran Satyagraha", "Kheda Satyagraha"], answer: 0 },
+  { question: "Which of these leaders is known as the 'Iron Man of India'?", options: ["Jawaharlal Nehru", "Mahatma Gandhi", "Sardar Vallabhbhai Patel", "Subhas Chandra Bose"], answer: 2 }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let selectedAnswers = Array(quizData.length).fill(null);
+
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const submitBtn = document.getElementById("submitBtn");
+const resultPopup = document.getElementById("result-popup");
+const resultText = document.getElementById("result-text");
+
+function loadQuestion() {
+  let q = quizData[currentQuestion];
+  questionEl.textContent = q.question;
+  optionsEl.innerHTML = "";
+  q.options.forEach((opt, index) => {
+    let btn = document.createElement("div");
+    btn.textContent = opt;
+    btn.className = "option";
+    if (selectedAnswers[currentQuestion] === index) {
+      btn.style.borderColor = "#ff9933";
+      btn.style.background = "#fff3e0";
+    }
+    btn.addEventListener("click", () => {
+      selectedAnswers[currentQuestion] = index;
+      loadQuestion();
+    });
+    optionsEl.appendChild(btn);
+  });
+  prevBtn.disabled = currentQuestion === 0;
+  nextBtn.style.display = currentQuestion < quizData.length - 1 ? "inline-block" : "none";
+  submitBtn.style.display = currentQuestion === quizData.length - 1 ? "inline-block" : "none";
+}
+
+prevBtn.addEventListener("click", () => {
+  currentQuestion--;
+  loadQuestion();
+});
+
+nextBtn.addEventListener("click", () => {
+  currentQuestion++;
+  loadQuestion();
+});
+
+submitBtn.addEventListener("click", () => {
+  score = selectedAnswers.reduce((acc, ans, i) => ans === quizData[i].answer ? acc + 1 : acc, 0);
+  resultText.textContent = `Jai Bharat! 🇮🇳\nYou scored ${score} out of ${quizData.length} 🎉`;
+  resultPopup.style.display = "flex";
+});
+
+loadQuestion();
+</script>
+</body>
+</html>
